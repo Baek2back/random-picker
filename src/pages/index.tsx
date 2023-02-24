@@ -216,6 +216,9 @@ export default function Home() {
       <div className="mx-auto mt-10 h-[717px] max-w-[940px] rounded-2xl bg-[#2B2C31] pb-[28px]">
         <div className="flex h-[155px] items-center justify-center gap-[16px] pt-[64px] pb-[36px]">
           <p className="text-[36px] font-bold leading-[43px]">다음 순서</p>
+          <span className="flex w-[60px] justify-center text-[24px]">
+            {restItems.length}명
+          </span>
           <button
             className="flex h-[55px] w-[55px] items-center justify-center rounded-[50%] bg-[#594AFF]"
             onClick={() => {
