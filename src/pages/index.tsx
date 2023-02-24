@@ -70,7 +70,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-black text-white">
+    <div className="min-h-screen w-screen bg-black pb-[135px] text-white">
       <div className="mx-auto max-w-[940px] pt-[135px]">
         <div className="mb-10 max-w-[940px]">
           <input
