@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Pretendard Variable', sans-serif;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+}
