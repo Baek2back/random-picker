@@ -7,6 +7,7 @@ import RightHand from "@/assets/svg/rightHand.svg";
 import clsx from "clsx";
 import { useTimer } from "use-timer";
 import { useLocalStorage } from "react-use";
+import useSound from "use-sound";
 
 const BG_COLOR_MAP = {
   Android: "bg-[#6AD79C]",
@@ -53,6 +54,8 @@ export default function Home() {
     timerType: "DECREMENTAL",
   });
 
+  const [play] = useSound("/dingdong.mp3");
+
   const [currentItem, ...restItems] = csv;
 
   useEffect(() => {
@@ -60,6 +63,12 @@ export default function Home() {
       setCsv(localStorageCSV);
     }
   }, []);
+
+  useEffect(() => {
+    if (time === 0) {
+      play();
+    }
+  }, [time, play]);
 
   const processCSV = (str: string, delim = ",") => {
     const headers = str.slice(0, str.indexOf("\n")).split(delim);
