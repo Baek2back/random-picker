@@ -14,7 +14,7 @@ module.exports = {
         },
       },
       animation: {
-        reveal: "reveal 10s 1",
+        reveal: "reveal 15s 1",
       },
       colors: {
         gray: {

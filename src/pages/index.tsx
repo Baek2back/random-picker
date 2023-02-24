@@ -48,7 +48,7 @@ export default function Home() {
     useLocalStorage<any[]>("csv", []);
   const [csv, setCsv] = useState<any[]>([]);
   const { time, start, pause, reset, status } = useTimer({
-    initialTime: 10,
+    initialTime: 15,
     endTime: 0,
     timerType: "DECREMENTAL",
   });
@@ -153,12 +153,12 @@ export default function Home() {
           </AnimatePresence>
           <div className="pt-7">
             <div className="mx-auto flex h-[86px] w-[343px]">
-              {time > 3 && (
+              {time > 5 && (
                 <span className="inline-block h-full w-full text-center text-[76px] font-bold leading-[91px]">
                   {time}
                 </span>
               )}
-              {time <= 3 && (
+              {time <= 5 && (
                 <span className="inline-block h-full w-full bg-urgent bg-clip-text text-center text-[76px] font-bold leading-[91px] text-transparent">
                   {time === 0 ? "끝!" : time}
                 </span>
