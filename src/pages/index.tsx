@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ShuffleIcon from "@/assets/svg/shuffle.svg";
 import Mashong from "@/assets/svg/mashong.svg";
 import LeftHand from "@/assets/svg/leftHand.svg";
 import RightHand from "@/assets/svg/rightHand.svg";
 import clsx from "clsx";
 import { useTimer } from "use-timer";
+import { useLocalStorage } from "react-use";
 
 const BG_COLOR_MAP = {
   Android: "bg-[#6AD79C]",
@@ -43,6 +44,8 @@ function shuffle<T>(array: T[]): T[] {
 }
 
 export default function Home() {
+  const [localStorageCSV, setLocalStorageCSV, removeLocalStorageCSV] =
+    useLocalStorage<any[]>("csv", []);
   const [csv, setCsv] = useState<any[]>([]);
   const { time, start, pause, reset, status } = useTimer({
     initialTime: 10,
@@ -51,6 +54,12 @@ export default function Home() {
   });
 
   const [currentItem, ...restItems] = csv;
+
+  useEffect(() => {
+    if (localStorageCSV?.length) {
+      setCsv(localStorageCSV);
+    }
+  }, []);
 
   const processCSV = (str: string, delim = ",") => {
     const headers = str.slice(0, str.indexOf("\n")).split(delim);
@@ -67,6 +76,7 @@ export default function Home() {
     });
 
     setCsv(newArray);
+    setLocalStorageCSV(newArray);
   };
 
   return (
@@ -184,6 +194,7 @@ export default function Home() {
                 onClick={() => {
                   const [, ...restItems] = csv;
                   setCsv([...restItems]);
+                  setLocalStorageCSV([...restItems]);
                   reset();
                 }}
               >
@@ -199,7 +210,9 @@ export default function Home() {
           <button
             className="flex h-[55px] w-[55px] items-center justify-center rounded-[50%] bg-[#594AFF]"
             onClick={() => {
-              setCsv(shuffle([...csv]));
+              const shuffledCSV = shuffle([...csv]);
+              setCsv(shuffle(shuffledCSV));
+              setLocalStorageCSV(shuffledCSV);
             }}
           >
             <ShuffleIcon />
