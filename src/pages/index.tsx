@@ -9,23 +9,24 @@ import { useTimer } from "use-timer";
 import { useLocalStorage } from "react-use";
 import useSound from "use-sound";
 
-const BG_COLOR_MAP = {
-  Android: "bg-[#6AD79C]",
-  "Product design": "bg-[#594AFF]",
-  Spring: "bg-[#477C63]",
-  iOS: "bg-[#F46B73]",
-  Node: "bg-[#F16E51]",
-  Web: "bg-[#3F9DE1]",
-} as any;
-
-const TEXT_COLOR_MAP = {
-  Android: "text-[#6AD79C]",
-  "Product design": "text-[#594AFF]",
-  Spring: "text-[#477C63]",
-  iOS: "text-[#F46B73]",
-  Node: "text-[#F16E51]",
-  Web: "text-[#3F9DE1]",
-} as any;
+const platform = {
+  BG_COLOR_MAP: {
+    Android: "bg-[#6AD79C]",
+    "Product design": "bg-[#594AFF]",
+    Spring: "bg-[#477C63]",
+    iOS: "bg-[#F46B73]",
+    Node: "bg-[#F16E51]",
+    Web: "bg-[#3F9DE1]",
+  },
+  TEXT_COLOR_MAP: {
+    Android: "text-[#6AD79C]",
+    "Product design": "text-[#594AFF]",
+    Spring: "text-[#477C63]",
+    iOS: "text-[#F46B73]",
+    Node: "text-[#F16E51]",
+    Web: "text-[#3F9DE1]",
+  },
+} as const;
 
 function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
@@ -44,12 +45,23 @@ function shuffle<T>(array: T[]): T[] {
   return array;
 }
 
+function secondsToTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const restSeconds = seconds % 60;
+  return `${minutes < 10 ? "0" : ""}${minutes}:${
+    restSeconds < 10 ? "0" : ""
+  }${restSeconds}`;
+}
+
 export default function Home() {
-  const [localStorageCSV, setLocalStorageCSV, removeLocalStorageCSV] =
-    useLocalStorage<any[]>("csv", []);
+  const [localStorageCSV, setLocalStorageCSV] = useLocalStorage<any[]>(
+    "csv",
+    []
+  );
   const [csv, setCsv] = useState<any[]>([]);
+  const [mode] = useState<"team" | "platform">("team");
   const { time, start, pause, reset, status } = useTimer({
-    initialTime: 15,
+    initialTime: mode === "platform" ? 15 : 60 * 15,
     endTime: 0,
     timerType: "DECREMENTAL",
   });
@@ -120,7 +132,9 @@ export default function Home() {
           <Mashong
             className={clsx(
               "absolute right-0 top-[-129px]",
-              status !== "STOPPED" && "animate-reveal"
+              status !== "STOPPED" && mode === "platform"
+                ? "animate-reveal-platform"
+                : "animate-reveal-team"
             )}
             style={{
               animationPlayState:
@@ -137,15 +151,29 @@ export default function Home() {
               <motion.p
                 className={clsx(
                   "block text-center text-5xl font-bold leading-[58px]",
-                  currentItem && TEXT_COLOR_MAP[currentItem.platform],
-                  !currentItem && "text-[#594AFF]"
+                  currentItem?.platform &&
+                    mode === "platform" &&
+                    platform.TEXT_COLOR_MAP[
+                      currentItem.platform as keyof typeof platform.TEXT_COLOR_MAP
+                    ],
+                  (!currentItem || mode === "team") && "text-[#594AFF]"
                 )}
-                key={currentItem ? currentItem.platform : "Platform"}
+                key={
+                  currentItem?.platform
+                    ? currentItem.platform
+                    : mode === "team"
+                    ? "Project Team"
+                    : "Platform"
+                }
                 initial={{ x: 100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -100, opacity: 0 }}
               >
-                {currentItem ? currentItem.platform : "Platform"}
+                {currentItem?.platform
+                  ? currentItem.platform
+                  : mode === "team"
+                  ? "Project Team"
+                  : "Platform"}
               </motion.p>
             </div>
             <div className="relative z-10 pt-3">
@@ -162,14 +190,24 @@ export default function Home() {
           </AnimatePresence>
           <div className="pt-7">
             <div className="mx-auto flex h-[86px] w-[343px]">
-              {time > 5 && (
+              {mode === "platform" && time > 5 && (
                 <span className="inline-block h-full w-full text-center text-[76px] font-bold leading-[91px]">
                   {time}
                 </span>
               )}
-              {time <= 5 && (
+              {mode === "platform" && time <= 5 && (
                 <span className="inline-block h-full w-full bg-urgent bg-clip-text text-center text-[76px] font-bold leading-[91px] text-transparent">
                   {time === 0 ? "끝!" : time}
+                </span>
+              )}
+              {mode === "team" && time > 60 && (
+                <span className="inline-block h-full w-full text-center text-[76px] font-bold leading-[91px]">
+                  {secondsToTime(time)}
+                </span>
+              )}
+              {mode === "team" && time <= 60 && (
+                <span className="inline-block h-full w-full bg-urgent bg-clip-text text-center text-[76px] font-bold leading-[91px] text-transparent">
+                  {time === 0 ? "끝!" : secondsToTime(time)}
                 </span>
               )}
             </div>
@@ -238,14 +276,16 @@ export default function Home() {
             {restItems.map(({ platform, name }) => (
               <motion.li
                 layout
-                layoutId={`${platform}-${name}`}
-                key={`${platform}-${name}`}
+                layoutId={platform ? `${platform}-${name}` : name}
+                key={platform ? `${platform}-${name}` : name}
                 className="col-span-1 rounded-2xl bg-white"
               >
                 <div
                   className={clsx(
                     "flex h-[48px] items-center justify-center rounded-t-2xl text-[20px] font-semibold leading-[24px]",
-                    BG_COLOR_MAP[platform]
+                    mode === "team"
+                      ? "bg-[#594AFF]"
+                      : platform.BG_COLOR_MAP[platform]
                   )}
                 >
                   {platform}
